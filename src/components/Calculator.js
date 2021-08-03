@@ -15,7 +15,6 @@ const initialState = {
 export default function Calculator() {
     const [state, dispatch] = useReducer(reducer, initialState);
 
-
     return <Grid container direction="column" justifyContent="center" alignItems="center" spacing={5}>
         <Grid container item xs={12} spacing={3}>
             <ResultBar calcState={state}></ResultBar>
@@ -27,7 +26,6 @@ export default function Calculator() {
 }
 
 function reducer(state, action) {
-    console.log(state);
     switch (action.type) {
         case 'add':
             return { ...state, memAction: 'add', currentNumber: 'y', symbol: action.symbol};
@@ -41,15 +39,15 @@ function reducer(state, action) {
             return { ...state, memAction: 'exp', currentNumber: 'y', symbol: action.symbol };
         case 'point':
             if(state[state.currentNumber].indexOf(".") === -1){
-                return {...state, [state.currentNumber]: [state.currentNumber] + "."};
+                return {...state, [state.currentNumber]: state[state.currentNumber] + "."};
             }
             return state;
         case 'changeSign':
-            return { ...state, [state.currentNumber]: state[state.currentNumber] * -1 };
+            return { ...state, [state.currentNumber]: (state[state.currentNumber] * -1).toString() };
         case 'equals':
             return {
-                result: calculate({ x: state.x !== '' ? state.x : 0, y: state.y !== '' ? state.y : 0 }, state.memAction),
-                x: '',
+                result: null,
+                x: calculate({ x: state.x !== '' ? state.x : 0, y: state.y !== '' ? state.y : 0 }, state.memAction).toString(),
                 y: '',
                 symbol: '',
                 currentNumber: 'x',
@@ -58,6 +56,9 @@ function reducer(state, action) {
         case 'number':
             return { ...state, [state.currentNumber]: state[state.currentNumber] + action.symbol };
         case 'erase':
+            if (state.currentNumber === '') {
+                return {...state, [state.memAction]: '', [state.currentNumber]: 'x'}
+            }     
             return {...state, [state.currentNumber]: ''};
         case 'A/C':
             return initialState;
